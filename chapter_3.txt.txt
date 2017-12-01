@@ -1,0 +1,7 @@
+Kapitel 3
+chapter_6.txt
+chapter_7.txt
+"kupio sam prsten
+kupio sam pusku
+jedno od ta dva
+bacicu u reku"
