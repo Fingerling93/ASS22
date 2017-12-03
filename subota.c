@@ -2,57 +2,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-
+//**//
 enum {STORY_MAX = 12, TITLE_MAX = 1024};
 
-typedef struct story
+typedef struct Story
 {
 
 	char title[TITLE_MAX];
-	//char file_a[PATH_MAX];
-	//char file_b[PATH_MAX];
-	struct story *right;
-	struct story *left;
+	char file_a[PATH_MAX];
+	char file_b[PATH_MAX];
+	struct Story *right;
+	struct Story *left;
 	char *text;
 
-} story;
+} Story;
 
-story *read_files(char *filename);
-
+struct Story *read_files(char *filename);
+//int newline()
+void read_text();
 int main(int argc, char **argv)
 {
 	int num = 0;
 	int story_count = 0;
-	//story stories[STORY_MAX] = {{.title = ""}};
-	
 	char *filename = argv[1];
-	read_files(filename);
 	
-	/*	while(num < STORY_MAX && read_files(&stories[num], filename))
-	{
-		filename = stories[num].file_a;
-		num++;	
-	}
-	story_count = num;  
-	
-	for(int count = 0; count < STORY_MAX-story_count; count++) 
-  {
-    while(num < STORY_MAX && read_files(&stories[num], stories[count].file_b))
-    {
-      filename = stories[count++].file_b;
-      num++;
-    }
-  }
-*/
-
-
-	/*for(int count = 0; count < num; count++) 
-	{
-		printf ("%s\n%s\n%s\n%s\n", 
-                stories[count].title, stories[count].file_a, 
-                stories[count].file_b, stories[count].text);
-		free(stories[count].text);
-	}*/
+	struct Story *start = read_files(filename);
 
 	return 0;
 
@@ -60,7 +34,7 @@ int main(int argc, char **argv)
 
 
 /* read values into struct story 'chapters' from 'filename' */
-story *read_files(char *filename)
+struct Story *read_files(char *filename)
 {
 	size_t length = 0;  								/* strlen */
 	size_t text_size = 0;								/* total text_size*/
@@ -75,81 +49,68 @@ story *read_files(char *filename)
 	}
 
 	char temp[TITLE_MAX] = "";
-	struct story *rc = (struct story*) malloc(sizeof(struct story)); 
+	struct Story *rc = malloc(sizeof(struct Story)); // does not need a cast (struct Story*)
 
-	if(fgets(rc->title, TITLE_MAX, fp) == 0) /* read title */
+	if(fgets(rc->title, TITLE_MAX, fp) == 0)				 /* read title */
 	{
   	printf ("error: failed to read title from '%s'.\n",filename);
   	return 0;
 	}
-	length = strlen(rc->title);   /* get title length */
+	length = strlen(rc->title) - 1; 								  /* get title length */
 
-	if(length && rc->title[length - 1] == '\n')  /* check last char is '\n' */
+	if(rc->title[length] == '\n')  										/* check last char is '\n' */
 	{
-		rc->title[--length] = 0;	 /* overwrite with nul-character */
+		rc->title[length] = 0;													 /* overwrite with nul-character */
 	}
-	/*else  		
-	{
-     printf ("error: title too long, filename '%s'.\n", filename);
-     return 0;
-	}*/
+	/*else /too long can be added */ 		
 
 	if(fgets(temp, PATH_MAX, fp) == 0) 
 	{
   	printf ("error: failed to read file_a from '%s'.\n", filename);
     return 0;
 	}
-	length = strlen(temp);
+	length = strlen(temp) - 1;
 
-	if(length && temp[length - 1] == '\n')
+	if(temp[length] == '\n')
 	{
-  	temp[--length] = 0;
+  	temp[length] = 0;
 	}
+	strcpy(rc->file_a, temp);
 	// TEMP now contains option a's filename
 
-
-	story *make_a = read_files(temp);
+	Story *make_a = read_files(temp);
 
 	if( make_a != NULL)
 	{
 		rc->left = make_a;
 	}
-	// temp = fread(fp)
-	fgets(temp, PATH_MAX, fp);
-
 
 	if(fgets(temp, PATH_MAX, fp) == 0) 
 	{
     printf ("error: failed to read file_y from '%s'.\n", filename);
     return 0;
 	}
-	length = strlen(temp);
-
-	if(length && temp[length - 1] == '\n')
+	length = strlen(temp) - 1;
+	
+	if(temp[length] == '\n')
 	{
-		temp[--length] = 0;
+		temp[length] = 0;
 	}
-	/*else
-	{
-    printf ("error: file_y too long, filename '%s'.\n",filename);
-    return 1;		
-	}*/
-	story *make_b = read_files(temp);
+	strcpy(rc->file_b, temp);
+	
+	Story *make_b = read_files(temp);
 
 	if( make_b != NULL)
 	{
 		rc->right = make_b;
 	}
 
+	rc->text = read_text();
 	/* Read text in TITLE_MAX chunks*/
 	while(fgets(buffer, TITLE_MAX, fp))
 	{
 		length = strlen(buffer);
 
-		//if(length && buffer[length - 1] == '\n')  /* check for '\n' */
-		//{
-			//buffer[length - 1] = ' '; /* overwrite with ' ' for concat */
-		//}
 		if(text_size == 0)		/* account for space for '\0' when empty, and  */
 		{											/* and use flag to set new block to empty-string*/
 			nul_char = 1;				
@@ -177,8 +138,12 @@ story *read_files(char *filename)
 		text_size += (length + 1);
 	}
 
-	printf("RC:\n%s\n%s\n",rc->title,rc->text );
-	free(rc); // not sure if ok here
+	printf("%s\n%s\n%s\n%s\n",rc->title,rc->file_a,rc->file_b,rc->text );
 	fclose(fp);
 	return rc;
+}
+
+void read_text()
+{
+
 }
