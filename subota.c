@@ -18,8 +18,7 @@ typedef struct Story
 } Story;
 
 struct Story *read_files(char *filename);
-//int newline()
-void read_text();
+
 int main(int argc, char **argv)
 {
 	int num = 0;
@@ -105,13 +104,12 @@ struct Story *read_files(char *filename)
 		rc->right = make_b;
 	}
 
-	rc->text = read_text();
 	/* Read text in TITLE_MAX chunks*/
 	while(fgets(buffer, TITLE_MAX, fp))
 	{
 		length = strlen(buffer);
 
-		if(text_size == 0)		/* account for space for '\0' when empty, and  */
+		if(text_size == 0)		                     /* account for space for '\0' when empty, and  */
 		{											/* and use flag to set new block to empty-string*/
 			nul_char = 1;				
 		}
@@ -143,7 +141,3 @@ struct Story *read_files(char *filename)
 	return rc;
 }
 
-void read_text()
-{
-
-}
