@@ -1,6 +1,6 @@
 Kapitel 4
-chapter_8.txt
-chapter_9.txt
+-
+-
 Svet se deli na pione
 pione i sampione
 vidi kako tvoj brod tone

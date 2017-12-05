@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-//**//
+
+#define ERR_FILE "[ERR] Could not read file %s.\n"
+#define ERR_USER "[ERR] Please enter A or B.\n"
+#define ERR_MEM "[ERR] Out of memory.\n"
+#define ERR_RUN "Usage: ./ass2 [file-name]\n"
+#define LINE "------------------------------\n"
+
 enum {STORY_MAX = 12, TITLE_MAX = 1024};
 
 typedef struct Story
@@ -18,15 +24,34 @@ typedef struct Story
 } Story;
 
 struct Story *read_files(char *filename);
+int print_story(struct Story *strt);
+int check_input(void);
+void flushScanf(void);
 
 int main(int argc, char **argv)
 {
 	int num = 0;
 	int story_count = 0;
+
+	if(argc != 2)
+	{
+		printf(ERR_RUN);
+		return 1;
+
+	}
 	char *filename = argv[1];
 	
 	struct Story *start = read_files(filename);
+	
+	//printf("Right:\n %s\n%s\n%s\n%s\n",new_r->title, new_r->file_a, new_r->file_b, new_r->text );
+	//printf("LEFT\n %s\n%s\n%s\n%s\n", new_l->title, new_l->file_a, new_l->file_b, new_l->text);
 
+	//start = new_r;
+	//new_r = start->right;
+
+	//printf("Right2:\n %s\n%s\n%s\n%s\n",new_r->title, new_r->file_a, new_r->file_b, new_r->text );	
+
+	int check = print_story(start);
 	return 0;
 
 }
@@ -44,6 +69,7 @@ struct Story *read_files(char *filename)
 
 	if(!fp)
 	{		
+		//printf ("[ERR] Could not read file %s. \n",filename);
 		return NULL;		/* validate file open for reading or return 0 (silent, no file a or b)*/
 	}
 
@@ -52,7 +78,7 @@ struct Story *read_files(char *filename)
 
 	if(fgets(rc->title, TITLE_MAX, fp) == 0)				 /* read title */
 	{
-  	printf ("error: failed to read title from '%s'.\n",filename);
+  	printf ("[ERR] Could not read file %s.\n", filename);
   	return 0;
 	}
 	length = strlen(rc->title) - 1; 								  /* get title length */
@@ -109,7 +135,7 @@ struct Story *read_files(char *filename)
 	{
 		length = strlen(buffer);
 
-		if(text_size == 0)		                     /* account for space for '\0' when empty, and  */
+		if(text_size == 0)		/* account for space for '\0' when empty, and  */
 		{											/* and use flag to set new block to empty-string*/
 			nul_char = 1;				
 		}
@@ -136,8 +162,95 @@ struct Story *read_files(char *filename)
 		text_size += (length + 1);
 	}
 
-	printf("%s\n%s\n%s\n%s\n",rc->title,rc->file_a,rc->file_b,rc->text );
+	//printf("%s\n%s\n%s\n%s\n",rc->title,rc->file_a,rc->file_b,rc->text );
 	fclose(fp);
 	return rc;
 }
 
+int print_story(struct Story *start)
+{	
+	int choice = 0;
+	int end = 1;
+
+	struct Story *new_r = malloc(sizeof(struct Story*));
+	struct Story *new_l = malloc(sizeof(struct Story*));
+	
+		do
+		{		
+			printf(LINE);
+			if((start->right == NULL) && (start->left) == NULL)
+			{
+				printf("%s\n\n%s\n\nENDE\n", start->title, start->text);
+				return end; // uhvati ga u main i if 1, return 0
+			}
+			printf("%s\n\n%s\n\nDeine Wahl (A/B)?", start->title, start->text);
+			choice = check_input();
+			
+			if (choice == EOF)
+			{
+				return end;
+			}
+			if(choice == 2)
+			{
+				new_r = start->right;
+				start = new_r;
+			}
+			else
+			{
+				new_l = start->left;
+				start = new_l;
+			}
+		}
+		while( end == 1);
+	}
+
+
+int check_input(void)
+{	
+  char check = 0;
+  int return_value = 0;
+  int num = 0;
+  int correct_input = 0;
+  int choice = 0;
+  
+  do 
+  {
+    return_value = scanf(" %c",&check);
+    
+    if (return_value == EOF)
+    {
+      return EOF;
+    }
+    else if (return_value == 1)
+    {    	
+    	if(check == 'A')
+    	{
+    		choice = 1;
+    		correct_input = 1;
+    	}
+    	else if(check == 'B')
+    	{
+    		choice = 2;
+    		correct_input = 1;
+    	}
+    	else
+    	{
+    		printf(ERR_USER);
+
+    	}	
+    }
+  } while (correct_input == 0);
+
+  return choice;
+}
+/*
+void flushScanf(void)
+{
+  char c = 0;
+
+  while (c != '\n')
+  {
+    scanf("%c", &c);
+  }
+}
+*/
